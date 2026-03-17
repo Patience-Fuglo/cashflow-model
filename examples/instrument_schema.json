@@ -1,0 +1,11 @@
+{
+  "instrument_id": "US_Treasury_5Y",
+  "instrument_type": "bond",
+  "principal": 1000,
+  "currency": "USD",
+  "issue_date": "2024-01-01",
+  "maturity_date": "2029-01-01",
+  "coupon_rate": 0.05,
+  "payment_frequency": "semi-annual",
+  "day_count_convention": "30/360"
+}
