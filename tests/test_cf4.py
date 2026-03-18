@@ -1,4 +1,7 @@
+"""Unit tests for cashflow projection engine."""
 from datetime import date
+
+import pytest
 
 from cashflow_model.instrument import Bond
 from cashflow_model.cashflow_engine import (
@@ -9,44 +12,171 @@ from cashflow_model.cashflow_engine import (
     total_interest,
 )
 
-# --------------------------------------------------
-# TEST 1: BOND CASHFLOWS
-# --------------------------------------------------
-bond = Bond(
-    name="3Y Bond",
-    face_value=1000.0,
-    coupon_rate=0.06,
-    payment_frequency=1,
-    issue_date=date(2024, 1, 1),
-    maturity_date=date(2027, 1, 1),
-)
 
-bond_cashflows = project_bond_cashflows(bond)
+def test_project_bond_cashflows():
+    """Test bond cashflow projection."""
+    bond = Bond(
+        name="3Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.06,
+        payment_frequency=1,
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2027, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    
+    # 3 years, annual payment = 3 coupons + 1 principal = 4 cashflows
+    assert len(cashflows) == 4
+    
+    # Check first 3 are coupons
+    for i in range(3):
+        assert cashflows[i].amount == pytest.approx(60.0)  # 0.06 * 1000
+        assert cashflows[i].cashflow_type == "COUPON"
+    
+    # Last one is principal
+    assert cashflows[3].amount == pytest.approx(1000.0)
+    assert cashflows[3].cashflow_type == "PRINCIPAL"
 
-print("=== BOND CASHFLOW SCHEDULE ===")
-print_cashflow_schedule(bond_cashflows)
 
-print("\nBond total cashflows:", total_cashflows(bond_cashflows))
-print("Bond total interest:", total_interest(bond_cashflows))
+def test_project_bond_cashflows_semi_annual():
+    """Test bond cashflow projection with semi-annual payments."""
+    bond = Bond(
+        name="2Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.04,
+        payment_frequency=2,  # semi-annual
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2026, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    
+    # 2 years, semi-annual = 4 coupons + 1 principal = 5 cashflows
+    assert len(cashflows) == 5
+    
+    # Semi-annual coupon = 0.04 * 1000 / 2 = 20
+    for i in range(4):
+        assert cashflows[i].amount == pytest.approx(20.0)
+        assert cashflows[i].cashflow_type == "COUPON"
+    
+    # Final payment = principal only
+    assert cashflows[4].amount == pytest.approx(1000.0)
+    assert cashflows[4].cashflow_type == "PRINCIPAL"
 
-# --------------------------------------------------
-# TEST 2: LOAN CASHFLOWS
-# --------------------------------------------------
-loan_cashflows = project_amortizing_loan(
-    balance=10000.0,
-    annual_rate=0.05,
-    monthly_payment=188.71,
-    num_months=60,
-)
 
-print("\n=== LOAN CASHFLOW SCHEDULE ===")
-print_cashflow_schedule(loan_cashflows[:10])  # first 5 months only (10 rows)
+def test_project_amortizing_loan():
+    """Test amortizing loan cashflow projection."""
+    loan_cashflows = project_amortizing_loan(
+        balance=10000.0,
+        annual_rate=0.05,
+        monthly_payment=188.71,
+        num_months=60,
+    )
+    
+    # Each month generates 2 cashflows (interest and principal)
+    assert len(loan_cashflows) == 120
 
-print("\nLoan total cashflows:", total_cashflows(loan_cashflows))
-print("Loan total interest:", total_interest(loan_cashflows))
 
-first_interest = loan_cashflows[0].amount
-last_principal = loan_cashflows[-1].amount
+def test_total_cashflows():
+    """Test total cashflows calculation."""
+    bond = Bond(
+        name="1Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.05,
+        payment_frequency=1,
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2025, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    total = total_cashflows(cashflows)
+    
+    # 1 coupon (50) + principal (1000) = 1050
+    assert total == pytest.approx(1050.0)
 
-print("\nFirst month's interest:", first_interest)
-print("Last principal payment:", last_principal)
+
+def test_total_interest():
+    """Test total interest calculation."""
+    bond = Bond(
+        name="1Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.05,
+        payment_frequency=1,
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2025, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    interest = total_interest(cashflows)
+    
+    # Total interest paid = 50
+    assert interest == pytest.approx(50.0)
+
+
+def test_loan_total_cashflows():
+    """Test total cashflows for amortizing loan."""
+    loan_cashflows = project_amortizing_loan(
+        balance=10000.0,
+        annual_rate=0.05,
+        monthly_payment=188.71,
+        num_months=60,
+    )
+    
+    total = total_cashflows(loan_cashflows)
+    
+    # This includes both interest and principal components
+    assert total > 10000.0
+
+
+def test_loan_total_interest():
+    """Test total interest for amortizing loan."""
+    loan_cashflows = project_amortizing_loan(
+        balance=10000.0,
+        annual_rate=0.05,
+        monthly_payment=188.71,
+        num_months=60,
+    )
+    
+    interest = total_interest(loan_cashflows)
+    
+    # Total interest should be positive
+    assert interest > 0
+
+
+def test_bond_cashflow_dates():
+    """Test that cashflow dates are correct."""
+    bond = Bond(
+        name="2Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.05,
+        payment_frequency=1,
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2026, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    
+    # Check dates
+    assert cashflows[0].date == date(2025, 1, 1)
+    assert cashflows[1].date == date(2026, 1, 1)
+
+
+def test_print_cashflow_schedule(capsys):
+    """Test printing cashflow schedule."""
+    bond = Bond(
+        name="1Y Bond",
+        face_value=1000.0,
+        coupon_rate=0.05,
+        payment_frequency=1,
+        issue_date=date(2024, 1, 1),
+        maturity_date=date(2025, 1, 1),
+    )
+    
+    cashflows = project_bond_cashflows(bond)
+    
+    # Should not raise an error
+    print_cashflow_schedule(cashflows)
+    
+    captured = capsys.readouterr()
+    assert "coupon" in captured.out.lower() or "principal" in captured.out.lower()
