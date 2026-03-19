@@ -115,5 +115,47 @@ def test_quarterly_frequency():
     assert len(result["cashflows"]) == 5
 
 
+def test_invalid_instrument_type_raises_error():
+    """Test that non-bond instrument types are rejected."""
+    instrument_data = {
+        "instrument_id": "TEST_LOAN",
+        "instrument_type": "loan",
+        "principal": 1000,
+        "currency": "USD",
+        "issue_date": "2024-01-01",
+        "maturity_date": "2025-01-01",
+        "coupon_rate": 0.04,
+        "payment_frequency": "annual",
+        "day_count_convention": "ACT/365"
+    }
+
+    try:
+        build_bond_and_project_cashflows(instrument_data)
+        assert False, "Expected ValueError for non-bond instrument type"
+    except ValueError as exc:
+        assert "bond" in str(exc).lower()
+
+
+def test_unsupported_payment_frequency_raises_error():
+    """Test that invalid frequency labels are rejected."""
+    instrument_data = {
+        "instrument_id": "TEST_BOND",
+        "instrument_type": "bond",
+        "principal": 1000,
+        "currency": "USD",
+        "issue_date": "2024-01-01",
+        "maturity_date": "2025-01-01",
+        "coupon_rate": 0.04,
+        "payment_frequency": "bi-weekly",
+        "day_count_convention": "ACT/365"
+    }
+
+    try:
+        build_bond_and_project_cashflows(instrument_data)
+        assert False, "Expected KeyError for unsupported payment frequency"
+    except KeyError as exc:
+        assert "bi-weekly" in str(exc).lower()
+
+
 if __name__ == "__main__":
     raise SystemExit(run_module_tests(globals()))

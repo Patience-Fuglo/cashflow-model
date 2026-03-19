@@ -1,7 +1,7 @@
 # 📊 Cashflow Model — Fixed Income Analytics Engine
 
 ![Status](https://img.shields.io/badge/status-complete-brightgreen)
-![Python](https://img.shields.io/badge/python-3.11-blue)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.13-blue)
 
 ## Overview
 
@@ -54,6 +54,11 @@ Cashflow Model/
 │   ├── test_cf6.py
 │   └── test_download_integration.py
 │
+├── .github/workflows/
+│   └── tests.yml          # CI: run tests on push/PR
+│
+├── Makefile               # local shortcut: make test
+│
 ├── requirements.txt
 └── README.md
 ```
@@ -62,7 +67,7 @@ Cashflow Model/
 
 ## Environment
 
-Built and tested with Python 3.11.
+Built and tested with Python 3.11 and 3.13.
 
 ---
 
@@ -291,6 +296,12 @@ These checks provide confidence that the pricing and risk outputs are numericall
 
 ```bash
 pip install -r requirements.txt
+make test
+```
+
+or:
+
+```bash
 python -m tests
 ```
 
@@ -311,6 +322,12 @@ python -m tests.test_download_integration
 ## How to Run
 
 Run all tests with simple pass/fail output:
+
+```bash
+make test
+```
+
+or:
 
 ```bash
 python -m tests
@@ -334,6 +351,12 @@ python -m tests.test_download_integration
 ```
 
 Note: Tests are executable as plain Python modules and do not require `pytest`.
+
+---
+
+## Continuous Integration
+
+GitHub Actions runs `python -m tests` automatically on every push and pull request using Python 3.11 and 3.13.
 
 ---
 
