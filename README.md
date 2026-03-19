@@ -305,7 +305,7 @@ or:
 python -m tests
 ```
 
-Run individual modules if needed:
+Run an individual module if needed:
 
 ```bash
 python -m tests.test_cf1
@@ -314,39 +314,6 @@ python -m tests.test_cf3
 python -m tests.test_cf4
 python -m tests.test_cf5
 python -m tests.test_cf6
-python -m tests.test_download_integration
-```
-
----
-
-## How to Run
-
-Run all tests with simple pass/fail output:
-
-```bash
-make test
-```
-
-or:
-
-```bash
-python -m tests
-```
-
-Run individual components:
-
-```bash
-python -m tests.test_cf1
-python -m tests.test_cf2
-python -m tests.test_cf3
-python -m tests.test_cf4
-python -m tests.test_cf5
-python -m tests.test_cf6
-```
-
-Final integration test:
-
-```bash
 python -m tests.test_download_integration
 ```
 
