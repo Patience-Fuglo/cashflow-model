@@ -1,7 +1,7 @@
 """Unit tests for accrual interest and pricing functions."""
 from datetime import date
 
-import pytest
+from tests.test_utils import approx, run_module_tests
 
 from cashflow_model.instrument import Bond
 from cashflow_model.accrual import (
@@ -23,7 +23,7 @@ def test_simple_interest():
     interest = simple_interest(principal, rate, time)
     
     # I = P * r * t = 1000 * 0.05 * 0.25 = 12.5
-    assert interest == pytest.approx(12.5)
+    assert interest == approx(12.5)
 
 
 def test_simple_interest_one_year():
@@ -34,7 +34,7 @@ def test_simple_interest_one_year():
     
     interest = simple_interest(principal, rate, time)
     
-    assert interest == pytest.approx(50.0)
+    assert interest == approx(50.0)
 
 
 def test_compound_interest():
@@ -47,7 +47,7 @@ def test_compound_interest():
     interest = compound_interest(principal, rate, years, frequency)
     
     # Interest = P * ((1 + r/m)^(m*t) - 1) = 1000 * (1.025^2 - 1) = 50.625
-    assert interest == pytest.approx(50.625)
+    assert interest == approx(50.625)
 
 
 def test_compound_interest_multiple_years():
@@ -61,7 +61,7 @@ def test_compound_interest_multiple_years():
     
     # Interest = P * ((1 + r/m)^(m*t) - 1) = 1000 * (1.025^4 - 1)
     expected = principal * ((1.025 ** 4) - 1)
-    assert interest == pytest.approx(expected)
+    assert interest == approx(expected)
 
 
 def test_find_last_coupon_date():
@@ -127,7 +127,7 @@ def test_clean_price():
     clean = clean_price(dirty_price, accrued)
     
     # Clean = Dirty - Accrued
-    assert clean == pytest.approx(1000.0)
+    assert clean == approx(1000.0)
 
 
 def test_clean_price_example():
@@ -137,7 +137,7 @@ def test_clean_price_example():
     
     clean = clean_price(dirty_price, accrued)
     
-    assert clean == pytest.approx(1025.0)
+    assert clean == approx(1025.0)
 
 
 def test_bond_creation():
@@ -155,3 +155,7 @@ def test_bond_creation():
     assert bond.face_value == 1000.0
     assert bond.coupon_rate == 0.05
     assert bond.payment_frequency == 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))

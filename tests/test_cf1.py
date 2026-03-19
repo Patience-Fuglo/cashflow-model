@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from datetime import date
 
-import pytest
+from tests.test_utils import approx, run_module_tests
 
 from cashflow_model.cashflow_engine import project_bond_cashflows
 from cashflow_model.instrument import Bond
@@ -138,4 +138,8 @@ def test_estimate_pnl_from_duration():
     
     # Loss should be negative when rates go up
     assert pnl < 0
-    assert pnl == pytest.approx(-25000.0)
+    assert pnl == approx(-25000.0)
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))

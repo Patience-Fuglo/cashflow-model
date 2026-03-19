@@ -291,6 +291,12 @@ These checks provide confidence that the pricing and risk outputs are numericall
 
 ```bash
 pip install -r requirements.txt
+python -m tests
+```
+
+Run individual modules if needed:
+
+```bash
 python -m tests.test_cf1
 python -m tests.test_cf2
 python -m tests.test_cf3
@@ -303,6 +309,12 @@ python -m tests.test_download_integration
 ---
 
 ## How to Run
+
+Run all tests with simple pass/fail output:
+
+```bash
+python -m tests
+```
 
 Run individual components:
 
@@ -320,6 +332,8 @@ Final integration test:
 ```bash
 python -m tests.test_download_integration
 ```
+
+Note: Tests are executable as plain Python modules and do not require `pytest`.
 
 ---
 

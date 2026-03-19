@@ -1,7 +1,7 @@
 """Unit tests for present value calculations."""
 from datetime import date
 
-import pytest
+from tests.test_utils import approx, run_module_tests
 
 from cashflow_model.instrument import Bond
 from cashflow_model.cashflow_engine import project_bond_cashflows
@@ -23,7 +23,7 @@ def test_discount():
     pv = discount(future_value, rate, time)
     
     # PV = FV / (1 + r)^t = 1000 / 1.04 = 961.538...
-    assert pv == pytest.approx(1000.0 / 1.04)
+    assert pv == approx(1000.0 / 1.04)
 
 
 def test_discount_multiple_years():
@@ -35,7 +35,7 @@ def test_discount_multiple_years():
     pv = discount(future_value, rate, time)
     
     # PV = 1000 / 1.05^2
-    assert pv == pytest.approx(1000.0 / (1.05 ** 2))
+    assert pv == approx(1000.0 / (1.05 ** 2))
 
 
 def test_discount_zero_time():
@@ -47,7 +47,7 @@ def test_discount_zero_time():
     pv = discount(future_value, rate, time)
     
     # PV = FV / (1 + r)^0 = FV / 1 = FV
-    assert pv == pytest.approx(future_value)
+    assert pv == approx(future_value)
 
 
 def test_calculate_npv():
@@ -96,7 +96,7 @@ def test_calculate_npv_par_value():
     )
     
     # Should be approximately par value
-    assert npv == pytest.approx(1000.0, rel=0.01)
+    assert npv == approx(1000.0, rel=0.01)
 
 
 def test_calculate_ytm():
@@ -163,7 +163,7 @@ def test_calculate_modified_duration():
     
     # Modified = Macaulay / (1 + ytm/frequency)
     expected = macaulay_duration / (1 + ytm / frequency)
-    assert modified_duration == pytest.approx(expected)
+    assert modified_duration == approx(expected)
 
 
 def test_modified_duration_semi_annual():
@@ -180,7 +180,7 @@ def test_modified_duration_semi_annual():
     
     # Modified = 2.5 / (1 + 0.05/2) = 2.5 / 1.025
     expected = macaulay_duration / (1 + ytm / frequency)
-    assert modified_duration == pytest.approx(expected)
+    assert modified_duration == approx(expected)
 
 
 def test_duration_higher_yield_lower_duration():
@@ -212,3 +212,7 @@ def test_duration_higher_yield_lower_duration():
     
     # Higher yield should result in lower duration
     assert duration_low_yield > duration_high_yield
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))

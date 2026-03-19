@@ -1,7 +1,7 @@
 """Unit tests for scenario analysis and interest rate risk."""
 from datetime import date
 
-import pytest
+from tests.test_utils import approx, run_module_tests
 
 from cashflow_model.instrument import Bond
 from cashflow_model.cashflow_engine import project_bond_cashflows
@@ -145,7 +145,7 @@ def test_estimate_pnl_from_duration_negative_rate_move():
     # Should be negative when rates rise
     assert pnl < 0
     # Should be -5 * 0.01 * 1000000 = -50000
-    assert pnl == pytest.approx(-50000.0)
+    assert pnl == approx(-50000.0)
 
 
 def test_estimate_pnl_from_duration_positive_rate_move():
@@ -159,7 +159,7 @@ def test_estimate_pnl_from_duration_positive_rate_move():
     # Should be positive when rates fall
     assert pnl > 0
     # Should be -5 * (-0.01) * 1000000 = +50000
-    assert pnl == pytest.approx(50000.0)
+    assert pnl == approx(50000.0)
 
 
 def test_duration_approximation_accuracy():
@@ -235,3 +235,7 @@ def test_higher_duration_more_sensitive_to_rates():
     
     # Long bond should be more sensitive
     assert abs(long_pct_change) > abs(short_pct_change)
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))

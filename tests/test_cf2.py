@@ -1,7 +1,7 @@
 """Unit tests for day count conventions."""
 from datetime import date
 
-import pytest
+from tests.test_utils import approx, run_module_tests
 
 from cashflow_model.day_count import (
     actual_360,
@@ -20,7 +20,7 @@ def test_actual_360_jan_to_jul():
     year_fraction = actual_360(start, end)
     
     # Actual count: 182 days / 360 = 0.5055...
-    assert year_fraction == pytest.approx(182 / 360, rel=1e-4)
+    assert year_fraction == approx(182 / 360, rel=1e-4)
 
 
 def test_actual_365_jan_to_jul():
@@ -31,7 +31,7 @@ def test_actual_365_jan_to_jul():
     year_fraction = actual_365(start, end)
     
     # Actual count: 182 days / 365 = 0.4986...
-    assert year_fraction == pytest.approx(182 / 365, rel=1e-4)
+    assert year_fraction == approx(182 / 365, rel=1e-4)
 
 
 def test_thirty_360_jan_to_jul():
@@ -42,7 +42,7 @@ def test_thirty_360_jan_to_jul():
     year_fraction = thirty_360(start, end)
     
     # (6 * 30) / 360 = 180 / 360 = 0.5
-    assert year_fraction == pytest.approx(0.5, rel=1e-4)
+    assert year_fraction == approx(0.5, rel=1e-4)
 
 
 def test_actual_actual_jan_to_jul():
@@ -53,7 +53,7 @@ def test_actual_actual_jan_to_jul():
     year_fraction = actual_actual(start, end)
     
     # Actual count: 182 days / 366 (leap year 2024) = 0.4972...
-    assert year_fraction == pytest.approx(182 / 366, rel=1e-4)
+    assert year_fraction == approx(182 / 366, rel=1e-4)
 
 
 def test_leap_year_edge_case_actual_360():
@@ -64,7 +64,7 @@ def test_leap_year_edge_case_actual_360():
     year_fraction = actual_360(start, end)
     
     # 2 days / 360 = 0.00555...
-    assert year_fraction == pytest.approx(2 / 360, rel=1e-4)
+    assert year_fraction == approx(2 / 360, rel=1e-4)
 
 
 def test_leap_year_edge_case_actual_365():
@@ -75,7 +75,7 @@ def test_leap_year_edge_case_actual_365():
     year_fraction = actual_365(start, end)
     
     # 2 days / 365 = 0.00547...
-    assert year_fraction == pytest.approx(2 / 365, rel=1e-4)
+    assert year_fraction == approx(2 / 365, rel=1e-4)
 
 
 def test_leap_year_edge_case_thirty_360():
@@ -86,7 +86,7 @@ def test_leap_year_edge_case_thirty_360():
     year_fraction = thirty_360(start, end)
     
     # 3 days / 360 = 0.00833... (30/360 uses actual day count here)
-    assert year_fraction == pytest.approx(3 / 360, rel=1e-4)
+    assert year_fraction == approx(3 / 360, rel=1e-4)
 
 
 def test_leap_year_edge_case_actual_actual():
@@ -97,7 +97,7 @@ def test_leap_year_edge_case_actual_actual():
     year_fraction = actual_actual(start, end)
     
     # 2 days / 366 (leap year) = 0.00546...
-    assert year_fraction == pytest.approx(2 / 366, rel=1e-4)
+    assert year_fraction == approx(2 / 366, rel=1e-4)
 
 
 def test_get_year_fraction_with_convention():
@@ -109,9 +109,9 @@ def test_get_year_fraction_with_convention():
     result_365 = get_year_fraction(start, end, "ACT/365")
     result_30_360 = get_year_fraction(start, end, "30/360")
     
-    assert result_360 == pytest.approx(182 / 360, rel=1e-4)
-    assert result_365 == pytest.approx(182 / 365, rel=1e-4)
-    assert result_30_360 == pytest.approx(0.5, rel=1e-4)
+    assert result_360 == approx(182 / 360, rel=1e-4)
+    assert result_365 == approx(182 / 365, rel=1e-4)
+    assert result_30_360 == approx(0.5, rel=1e-4)
 
 
 def test_same_start_and_end_date():
@@ -134,5 +134,9 @@ def test_one_year_apart():
     result_365 = actual_365(start, end)
     
     # 366 days (leap year) / 360 and / 365
-    assert result_360 == pytest.approx(366 / 360, rel=1e-4)
-    assert result_365 == pytest.approx(366 / 365, rel=1e-4)
+    assert result_360 == approx(366 / 360, rel=1e-4)
+    assert result_365 == approx(366 / 365, rel=1e-4)
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))

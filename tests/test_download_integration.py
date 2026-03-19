@@ -1,4 +1,6 @@
 """Integration tests for JSON I/O adapter."""
+from tests.test_utils import run_module_tests
+
 from cashflow_model.io_adapter import (
     load_json_file,
     build_bond_and_project_cashflows,
@@ -111,3 +113,7 @@ def test_quarterly_frequency():
     
     # 1 year * 4 payments/year + principal = 5 cashflows
     assert len(result["cashflows"]) == 5
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_module_tests(globals()))
