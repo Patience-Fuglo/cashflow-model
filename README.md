@@ -9,6 +9,16 @@ This project implements a **modular fixed income analytics engine** from scratch
 
 The goal is to demonstrate a **clear understanding of core fixed income concepts and how they are implemented in code**, not just theoretical knowledge.
 
+### Business Impact (Why it matters)
+
+This engine represents the core logic used in desk/risk workflows where teams need to:
+
+* Value plain-vanilla fixed income instruments consistently
+* Estimate interest-rate sensitivity quickly for scenario discussions
+* Standardize JSON-based inputs/outputs for integration with APIs, notebooks, or dashboards
+
+In practical terms, it provides a reliable foundation for pricing checks, what-if analysis, and portfolio-level extensions.
+
 ---
 
 ## What This Project Covers
@@ -61,6 +71,18 @@ Cashflow Model/
 │
 ├── requirements.txt
 └── README.md
+```
+
+### High-Level Architecture
+
+```text
+JSON Input -> io_adapter -> instrument/day_count/accrual/cashflow_engine
+         |
+         v
+       present_value + scenario
+         |
+         v
+          JSON/console output
 ```
 
 ---
@@ -262,6 +284,14 @@ These checks provide confidence that the pricing and risk outputs are numericall
 
 ---
 
+## Design Trade-offs
+
+* **Stability over speed:** bisection for YTM is slower than Newton methods, but more robust for interview/demo-grade code.
+* **Clarity over market completeness:** flat-rate discounting keeps pricing logic readable at the cost of full curve realism.
+* **Deterministic flows over realism:** no prepayments/default modeling in loan cashflows to keep outputs auditable.
+
+---
+
 ## Limitations
 
 * Assumes flat interest rates rather than a full yield curve
@@ -324,6 +354,12 @@ Note: Tests are executable as plain Python modules and do not require `pytest`.
 ## Continuous Integration
 
 GitHub Actions runs `python -m tests` automatically on every push and pull request using Python 3.11 and 3.13.
+
+---
+
+## Performance Snapshot
+
+On local macOS runs with Python 3.13, full-suite execution (`python -m tests`) completes in about **0.81s** (`real` time), while all tests pass.
 
 ---
 
