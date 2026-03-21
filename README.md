@@ -46,7 +46,6 @@ Cashflow Model/
 │   ├── instrument.py        # Bond and Loan classes
 │   ├── day_count.py         # Year fraction calculations
 │   ├── accrual.py           # Interest & accrued interest
-│   ├── cashflow_engine.py   # Cashflow generation
 │   ├── present_value.py     # NPV, YTM, duration
 │   ├── scenario.py          # Scenario analysis engine
 │   └── io_adapter.py        # JSON input/output integration
@@ -62,7 +61,6 @@ Cashflow Model/
 │   ├── test_cf4.py
 │   ├── test_cf5.py
 │   ├── test_cf6.py
-│   └── test_download_integration.py
 │
 ├── .github/workflows/
 │   └── tests.yml          # CI: run tests on push/PR
@@ -112,12 +110,9 @@ Supports:
 * Fixed coupon bonds
 * Amortizing loans
 
-Each bond includes:
 
 * Face value
 * Coupon rate
-* Payment frequency
-* Issue & maturity dates
 
 ---
 
@@ -143,8 +138,6 @@ These determine how time is measured between dates for interest calculations.
   ```
 * Compound interest:
 
-  ```
-  principal × (1 + rate/frequency)^(frequency × time)
   ```
 
 ---
