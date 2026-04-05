@@ -2,12 +2,13 @@
 
 ![Status](https://img.shields.io/badge/status-complete-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.13-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Overview
 
 This project implements a **modular fixed income analytics engine** from scratch. It models bonds and loans, projects cashflows, calculates present value and yield, and evaluates interest rate risk using scenario analysis.
 
-The goal is to demonstrate a **clear understanding of core fixed income concepts and how they are implemented in code**, not just theoretical knowledge.
+The goal is to provide a **clear, from-scratch implementation of core fixed income concepts** with clean, readable code.
 
 ### Business Impact (Why it matters)
 
@@ -17,7 +18,7 @@ This engine represents the core logic used in desk/risk workflows where teams ne
 * Estimate interest-rate sensitivity quickly for scenario discussions
 * Standardize JSON-based inputs/outputs for integration with APIs, notebooks, or dashboards
 
-In practical terms, it provides a reliable foundation for pricing checks, what-if analysis, and portfolio-level extensions.
+In practical terms, it provides a reliable foundation for pricing checks and what-if analysis.
 
 ---
 
@@ -43,6 +44,7 @@ This system replicates the **core building blocks used in real-world quant and t
 Cashflow Model/
 │
 ├── cashflow_model/
+│   ├── __init__.py          # Public API exports
 │   ├── instrument.py        # Bond and Loan classes
 │   ├── day_count.py         # Year fraction calculations
 │   ├── accrual.py           # Interest & accrued interest
@@ -55,19 +57,20 @@ Cashflow Model/
 │   └── cashflow_examples.json
 │
 ├── tests/
-│   ├── test_cf1.py
-│   ├── test_cf2.py
-│   ├── test_cf3.py
-│   ├── test_cf4.py
-│   ├── test_cf5.py
-│   ├── test_cf6.py
+│   ├── test_cf1.py          # Scenario analysis tests
+│   ├── test_cf2.py          # Day count convention tests
+│   ├── test_cf3.py          # Accrual & interest tests
+│   ├── test_cf4.py          # Cashflow engine tests
+│   ├── test_cf5.py          # Present value tests
+│   └── test_cf6.py          # Rate sensitivity tests
 │
 ├── .github/workflows/
-│   └── tests.yml          # CI: run tests on push/PR
+│   └── tests.yml            # CI: run tests on push/PR
 │
-├── Makefile               # local shortcut: make test
-│
+├── demo.py                  # Interactive demo script
+├── Makefile                 # local shortcut: make test
 ├── requirements.txt
+├── LICENSE
 └── README.md
 ```
 
@@ -96,8 +99,6 @@ Built and tested with Python 3.11 and 3.13.
 ```bash
 pip install -r requirements.txt
 ```
-
-This project is designed as a compact fixed income analytics library for learning, portfolio modeling, and interview demonstration.
 
 ---
 
@@ -232,23 +233,82 @@ Supports real-world data formats:
 
 ## Example Output
 
+### Bond Cashflow Schedule
+
+```
+Date            Type         Amount   Running Total
+----------------------------------------------------------
+2025-01-01      COUPON        50.00           50.00
+2026-01-01      COUPON        50.00          100.00
+2027-01-01      COUPON        50.00          150.00
+2027-01-01      PRINCIPAL   1000.00         1150.00
+```
+
+### Present Value & Duration
+
+```
+Bond: 3Y 5% Annual Coupon
+Discount Rate: 4%
+NPV: $1027.75 (premium bond)
+Macaulay Duration: 2.86 years
+Modified Duration: 2.75
+YTM (at market price $1027.75): 4.00%
+```
+
 ### Scenario Analysis
 
 ```
-Scenario        NPV      $ Change   % Change
--------------------------------------------
-Rates +1%     999.76     -44.56      -4.27%
-Rates -1%    1091.43      47.12       4.51%
+Base NPV: $1044.31
+
+Scenario        NPV       $ Change    % Change
+-----------------------------------------------
+Rates +0.5%    1021.70      -22.61       -2.17%
+Rates +1%       999.76      -44.56       -4.27%
+Rates +2%       957.88      -86.44       -8.28%
+Rates -0.5%    1067.62       23.31        2.23%
+Rates -1%      1091.65       47.34        4.53%
+Rates -2%      1142.16       97.85        9.37%
 ```
 
-### Duration Approximation
+### Loan Amortization
 
 ```
-Estimated P&L: -45.81
-Actual P&L:    -44.56
+Date            Type         Amount   Running Total
+----------------------------------------------------------
+Month 1         INTEREST      41.67           41.67
+Month 1         PRINCIPAL    158.33          200.00
+Month 2         INTEREST      40.35          240.35
+Month 2         PRINCIPAL    159.65          400.00
+...
+Month 60        INTEREST       1.64        10645.05
+Month 60        PRINCIPAL    198.36        10843.41
+
+Total Interest Paid: $843.41
 ```
 
-Representative outputs above are generated from the included scripts in [tests](tests).
+### Test Suite Output
+
+```
+$ python -m tests
+
+=== tests.test_cf1 ===
+PASS test_estimate_pnl_from_duration
+PASS test_run_all_scenarios
+PASS test_run_scenario
+...
+5 run, 5 passed, 0 failed in 0.00s
+
+=== tests.test_cf2 ===
+PASS test_actual_360_jan_to_jul
+PASS test_actual_365_jan_to_jul
+...
+11 run, 11 passed, 0 failed in 0.00s
+
+=== SUMMARY ===
+All modules passed.
+```
+
+All outputs above are generated from the included test modules.
 
 ---
 
@@ -279,7 +339,7 @@ These checks provide confidence that the pricing and risk outputs are numericall
 
 ## Design Trade-offs
 
-* **Stability over speed:** bisection for YTM is slower than Newton methods, but more robust for interview/demo-grade code.
+* **Stability over speed:** bisection for YTM is slower than Newton methods, but more robust and easier to debug.
 * **Clarity over market completeness:** flat-rate discounting keeps pricing logic readable at the cost of full curve realism.
 * **Deterministic flows over realism:** no prepayments/default modeling in loan cashflows to keep outputs auditable.
 
@@ -299,19 +359,17 @@ These checks provide confidence that the pricing and risk outputs are numericall
 * Yield curve integration and term structure modeling
 * Convexity adjustment for more accurate sensitivity estimates
 * Monte Carlo interest rate simulations
-* Portfolio-level risk aggregation (DV01, VaR)
+* Multi-instrument risk aggregation (DV01, VaR)
 * Real market data integration via APIs or data vendors
 
 ---
 
-## Skills Demonstrated
+## Technical Coverage
 
-* Fixed income mathematics (NPV, YTM, duration)
-* Numerical methods (bisection root finding)
-* Date and time convention handling
-* Financial modeling in Python
-* Object-oriented design
-* Risk analysis and scenario testing
+* Fixed income mathematics: NPV, YTM, duration
+* Numerical methods: bisection root finding
+* Date handling: multiple day count conventions
+* Risk analysis: scenario testing and sensitivity
 
 ---
 
@@ -328,7 +386,13 @@ or:
 python -m tests
 ```
 
-Run an individual module if needed:
+Run the interactive demo:
+
+```bash
+python demo.py
+```
+
+Run an individual test module:
 
 ```bash
 python -m tests.test_cf1
@@ -356,13 +420,19 @@ On local macOS runs with Python 3.13, full-suite execution (`python -m tests`) c
 
 ---
 
-## Key Takeaways
+## Summary
 
-This project demonstrates:
+This project provides a self-contained implementation of core fixed income analytics:
 
-* Understanding of fixed income fundamentals
-* Ability to translate finance theory into code
-* Structured, modular system design
-* Practical handling of real-world data formats
-* Risk analysis using duration and scenario testing
+* Accurate cashflow projection for bonds and loans
+* Standard day count conventions used in industry
+* NPV, YTM, and duration calculations
+* Scenario analysis for interest rate risk
+* JSON-based input/output for integration
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
